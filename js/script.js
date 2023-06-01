@@ -46,22 +46,36 @@ function reload(arr) {
         todo.append(work, time, rem, edit)
         list.append(todo)
 
-        
-        // work.onclick = async () => {
-        //     const res = await fetch(base_url + "/todos/" + item.id, {
-        //         method: "PATCH"
-        //     })
-        // }
+        let isDone
+        work.onclick = async () => {
+            const res = await fetch(base_url + "/todos/" + item.id, {
+                method: "PATCH" ,
+                body: JSON.stringify({
+                    isDone: !item.isDone
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            })
+            if (res.status === 200 || res.status === 201) {
+                if (item.isDone == false) {
+                    work.classList.add('true')
+                }
+            }
+        }
         edit.onclick = async (data) => {
             let editTask = prompt('Edit')
-            data = editTask
+          
             const res = await fetch(base_url + "/todos/" + item.id, {
                 method: "PATCH",
-                body: JSON.stringify(data),
+                body: JSON.stringify({
+                    task: editTask
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                },
             })
-            
             if (res.status === 200 || res.status === 201) {
-                 
                 work.innerHTML = editTask
             }
         }
