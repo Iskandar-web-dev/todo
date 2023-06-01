@@ -60,6 +60,7 @@ hr {
     position: absolute;
     top: 20px;
     right: 20px;
+    cursor: pointer;
 }
 .todo h2 {
     margin-bottom: 15px;
@@ -69,4 +70,7 @@ hr {
     text-decoration: line-through red;
     
     
+}
+a {
+    margin-left: 160px;
 }

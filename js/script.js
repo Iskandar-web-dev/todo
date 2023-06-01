@@ -1,26 +1,31 @@
 let list = document.querySelector('.list')
 let form = document.forms.forma
-
+let base_url = "http://localhost:9999"
 let todos = [
-    {
-        id: 1,
-        task: "buy kamron",
-        time: "14:05",
-        isDone: true
-    },
-    {
-        id: 2,
-        task: "do homework",
-        time: "14:05",
-        isDone: false
-    }
+
 ]
 
-reload(todos)
+const getAllData = async () => {
+    try {
+        const res = await fetch(base_url + "/todos")
+
+        if (res.status === 200 || res.status === 201) {
+
+            const data = await res.json()
+
+            reload(data)
+        }
+
+    } catch(e) {
+        alert('connection error!')
+    }
+
+}
+getAllData()
 
 let inp = document.querySelector("input")
-function reload(arr, place) {
-    list.innerHTML = ' '
+function reload(arr) {
+    // list.innerHTML = ''
 
     for (let item of arr) {
         //create
@@ -28,36 +33,49 @@ function reload(arr, place) {
         let work = document.createElement('h2')
         let time = document.createElement('span')
         let rem = document.createElement('p')
-
+        let edit = document.createElement('a')
         //styling
         todo.classList.add('todo')
 
         work.innerHTML = item.task
         time.innerHTML = item.time
         rem.innerHTML = 'X'
-
+        edit.innerHTML = 'edit'
+        edit.href = '#'
         //append
-        todo.append(work, time, rem)
+        todo.append(work, time, rem, edit)
         list.append(todo)
 
-        if (item.isDone === true) {
-            work.classList.add('true')
+        
+        // work.onclick = async () => {
+        //     const res = await fetch(base_url + "/todos/" + item.id, {
+        //         method: "PATCH"
+        //     })
+        // }
+        edit.onclick = async (data) => {
+            let editTask = prompt('Edit')
+            data = editTask
+            const res = await fetch(base_url + "/todos/" + item.id, {
+                method: "PATCH",
+                body: JSON.stringify(data),
+            })
+            
+            if (res.status === 200 || res.status === 201) {
+                 
+                work.innerHTML = editTask
+            }
         }
 
-        work.onclick = () => {
-            item.isDone = !item.isDone
 
-            reload(todos)
+        rem.onclick = async () => {
+            const res = await fetch(base_url + "/todos/" + item.id, {
+                method: "delete"
+            })
+            if (res.status === 200 || res.status === 201) {
+                todo.remove()
+            }
         }
 
-        rem.onclick = () => {
-            todo.style.opacity = 0
-            todo.style.transition = '.5s ease'
-            setTimeout(() => {
-                todos = todos.filter(elem => elem.id != item.id)
-                reload(todos)
-            }, 500)
-        }
     }
 }
 form.onsubmit = (event) => {
@@ -83,7 +101,27 @@ form.onsubmit = (event) => {
         todos.push(task);
         reload(todos, list)
         console.log(todos);
+        createNewTask(task)
     }
 
 
 }
+
+const createNewTask = async (body) => {
+    try {
+        const res = await fetch(base_url + "/todos", {
+            method: "post",
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json"
+            },
+        })
+
+        if (res.status === 200 || res.status === 201) {
+            console.log(res)
+        }
+    } catch (e) {
+        alert('error')
+    }
+}
+
